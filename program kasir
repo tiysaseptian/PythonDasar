@@ -1,0 +1,105 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
+
+# Data barang (contoh)
+ITEMS = {
+    "Apel": 5000,
+    "Jeruk": 7000,
+    "Pisang": 3000,
+    "Mangga": 10000,
+}
+
+# Fungsi untuk menambahkan barang ke keranjang
+def tambah_ke_keranjang():
+    barang = combo_barang.get()
+    try:
+        jumlah = int(entry_jumlah.get())
+    except ValueError:
+        messagebox.showerror("Error", "Masukkan jumlah dengan angka!")
+        return
+
+    if barang and jumlah > 0:
+        harga = ITEMS[barang] * jumlah
+        keranjang.insert("", "end", values=(barang, jumlah, harga))
+        update_total()
+    else:
+        messagebox.showerror("Error", "Pilih barang dan masukkan jumlah yang valid!")
+
+# Fungsi untuk menghitung total
+def update_total():
+    total = sum(int(keranjang.item(item, "values")[2]) for item in keranjang.get_children())
+    label_total.config(text=f"Total Harga: Rp{total}")
+
+# Fungsi untuk menghapus barang dari keranjang
+def hapus_barang():
+    selected_item = keranjang.selection()
+    if selected_item:
+        keranjang.delete(selected_item)
+        update_total()
+    else:
+        messagebox.showerror("Error", "Pilih item yang ingin dihapus!")
+
+# Fungsi untuk mencetak struk
+def cetak_struk():
+    items = keranjang.get_children()
+    if not items:
+        messagebox.showerror("Error", "Keranjang belanja kosong!")
+        return
+
+    struk = "=== Struk Pembayaran ===\n"
+    total = 0
+    for item in items:
+        barang, jumlah, harga = keranjang.item(item, "values")
+        struk += f"{barang} x{jumlah} = Rp{harga}\n"
+        total += int(harga)
+    struk += f"\nTotal Harga: Rp{total}\n"
+    struk += "========================"
+    messagebox.showinfo("Struk Pembayaran", struk)
+
+    # Reset keranjang
+    keranjang.delete(*keranjang.get_children())
+    update_total()
+
+# Membuat jendela utama
+window = tk.Tk()
+window.title("Program Kasir")
+window.geometry("500x500")
+
+# Bagian untuk memilih barang
+frame_barang = ttk.LabelFrame(window, text="Tambah Barang")
+frame_barang.pack(padx=10, pady=10, fill="x")
+
+ttk.Label(frame_barang, text="Barang:").grid(row=0, column=0, padx=5, pady=5)
+combo_barang = ttk.Combobox(frame_barang, values=list(ITEMS.keys()))
+combo_barang.grid(row=0, column=1, padx=5, pady=5)
+
+ttk.Label(frame_barang, text="Jumlah:").grid(row=1, column=0, padx=5, pady=5)
+entry_jumlah = ttk.Entry(frame_barang)
+entry_jumlah.grid(row=1, column=1, padx=5, pady=5)
+
+ttk.Button(frame_barang, text="Tambah", command=tambah_ke_keranjang).grid(row=2, column=0, columnspan=2, pady=10)
+
+# Bagian untuk keranjang belanja
+frame_keranjang = ttk.LabelFrame(window, text="Keranjang Belanja")
+frame_keranjang.pack(padx=10, pady=10, fill="both", expand=True)
+
+keranjang = ttk.Treeview(frame_keranjang, columns=("Barang", "Jumlah", "Harga"), show="headings", height=10)
+keranjang.heading("Barang", text="Barang")
+keranjang.heading("Jumlah", text="Jumlah")
+keranjang.heading("Harga", text="Harga")
+keranjang.pack(fill="both", expand=True)
+
+ttk.Button(frame_keranjang, text="Hapus", command=hapus_barang).pack(pady=5)
+
+# Bagian untuk total dan struk
+frame_total = ttk.Frame(window)
+frame_total.pack(padx=10, pady=10, fill="x")
+
+label_total = ttk.Label(frame_total, text="Total Harga: Rp0", font=("Helvetica", 14))
+label_total.pack(side="left")
+
+ttk.Button(frame_total, text="Cetak Struk", command=cetak_struk).pack(side="right")
+
+# Menjalankan aplikasi
+window.mainloop()
+    

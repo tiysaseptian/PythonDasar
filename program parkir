@@ -1,0 +1,92 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
+
+# Tarif parkir berdasarkan tipe kendaraan (per jam)
+TARIF = {
+    "Motor": 2000,
+    "Mobil": 5000,
+    "Bus": 8000,
+}
+
+# Fungsi untuk menghitung biaya parkir
+def hitung_biaya():
+    try:
+        durasi = int(entry_durasi.get())
+        tipe_kendaraan = combo_tipe.get()
+        if tipe_kendaraan and durasi > 0:
+            biaya = TARIF[tipe_kendaraan] * durasi
+            label_total.config(text=f"Total Biaya: Rp{biaya}")
+        else:
+            messagebox.showerror("Error", "Masukkan tipe kendaraan dan durasi yang valid!")
+    except ValueError:
+        messagebox.showerror("Error", "Masukkan durasi dengan angka!")
+
+# Fungsi untuk mencetak struk
+def cetak_struk():
+    nomor_kendaraan = entry_nomor.get()
+    tipe_kendaraan = combo_tipe.get()
+    try:
+        durasi = int(entry_durasi.get())
+    except ValueError:
+        messagebox.showerror("Error", "Masukkan durasi dengan angka!")
+        return
+
+    if nomor_kendaraan and tipe_kendaraan and durasi > 0:
+        biaya = TARIF[tipe_kendaraan] * durasi
+        struk = (
+            f"=== Struk Parkir ===\n"
+            f"Nomor Kendaraan: {nomor_kendaraan}\n"
+            f"Tipe Kendaraan: {tipe_kendaraan}\n"
+            f"Durasi Parkir: {durasi} jam\n"
+            f"Total Biaya: Rp{biaya}\n"
+            f"====================="
+        )
+        messagebox.showinfo("Struk Parkir", struk)
+        reset_form()
+    else:
+        messagebox.showerror("Error", "Lengkapi semua data sebelum mencetak struk!")
+
+# Fungsi untuk mereset form
+def reset_form():
+    entry_nomor.delete(0, tk.END)
+    combo_tipe.set("")
+    entry_durasi.delete(0, tk.END)
+    label_total.config(text="Total Biaya: Rp0")
+
+# Membuat jendela utama
+window = tk.Tk()
+window.title("Program Parkir")
+window.geometry("400x400")
+
+# Layout program
+frame_form = ttk.LabelFrame(window, text="Formulir Parkir")
+frame_form.pack(padx=10, pady=10, fill="x")
+
+# Input Nomor Kendaraan
+ttk.Label(frame_form, text="Nomor Kendaraan:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
+entry_nomor = ttk.Entry(frame_form)
+entry_nomor.grid(row=0, column=1, padx=5, pady=5)
+
+# Input Tipe Kendaraan
+ttk.Label(frame_form, text="Tipe Kendaraan:").grid(row=1, column=0, padx=5, pady=5, sticky="w")
+combo_tipe = ttk.Combobox(frame_form, values=list(TARIF.keys()))
+combo_tipe.grid(row=1, column=1, padx=5, pady=5)
+
+# Input Durasi Parkir
+ttk.Label(frame_form, text="Durasi Parkir (jam):").grid(row=2, column=0, padx=5, pady=5, sticky="w")
+entry_durasi = ttk.Entry(frame_form)
+entry_durasi.grid(row=2, column=1, padx=5, pady=5)
+
+# Tombol untuk menghitung dan mencetak struk
+ttk.Button(frame_form, text="Hitung Biaya", command=hitung_biaya).grid(row=3, column=0, padx=5, pady=10)
+ttk.Button(frame_form, text="Cetak Struk", command=cetak_struk).grid(row=3, column=1, padx=5, pady=10)
+
+# Label untuk total biaya
+label_total = ttk.Label(window, text="Total Biaya: Rp0", font=("Helvetica", 14))
+label_total.pack(pady=10)
+
+# Tombol reset
+ttk.Button(window, text="Reset Form", command=reset_form).pack(pady=10)
+
+# Menjalankan aplikasi
+window.mainloop()
